@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<%--Caching control --%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
+<%@page import="javax.servlet.http.HttpSession"%>
+<%          response.setHeader("Cache-Control","no-cache"); //Forces caches to obtain a new copy of the page from the origin server
+
+            response.setHeader("Cache-Control","no-store"); //Directs caches not to store the page under any circumstance
+
+            response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale" 
+            response.setHeader("Pragma","no-cache"); //HTTP 1.0 backward compatibility 
+%>
+<%-- Tag Lib starts here --%>
+
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+<meta charset="utf-8"  >
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
+
+<title><spring:message code="tarsierOrRegistration"/></title>
+
+<!-- STYLESHEET FILE -->
+<link href="/css/home/bootstrap.min.css" type="text/css" rel="stylesheet" />
+<link href="/css/home/font-awesome.min.css" type="text/css" rel="stylesheet" />
+<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="/css/home/style.css" type="text/css" rel="stylesheet" />
+<style type="text/css">
+ .error {
+      color: red;
+   }
+#errMsg
+{
+ color: red;
+}
+#errorFileMsg
+{
+  color: red;
+}
+.reset-video a
+{
+ color: #646464;
+ display: block;
+ background-color: #fff112;
+ padding: 5px;
+ float:right;
+}
+#uploadSuccess
+{
+  color: #00FF00;
+}
+#uploadSuccess-video
+{
+ color: #00FF00;
+}
+</style>
+
+</head>
+<body onload="changeHashOnLoad();">
+
+<div class="Main-wrapper grey-bg">
+  <header id="top">
+    <div class="hdr_main">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-3">
+            <div class="hdr_logo"> 
+				<a href="<%=request.getContextPath()%>/tarsier/web/home"><img src="/images/home/logo.png" alt="logo"></a> 
+			</div><!-- hdr_logo --> 
+          </div>
+          
+        </div><!-- row --> 
+      </div><!-- container --> 
+    </div><!-- hdr_main --> 
+  </header> 
+  
+  <section>
+   <div class="container">
+    <div id="registration-steps">
+        <div class="reg-progress">
+            <div class="col-sm-5 pull-right">
+                <p class="text-center"><spring:message code="registrationcompletion"/><span id="registrationCompleteion"></span></p>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-warning" id="progressbarValue" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 33.3%">
+                    <span class="sr-only"><spring:message code="completewarning"/></span>
+                  </div>
+                </div><!--progress-->
+            </div>
+        </div><!--reg-progress-->
+        
+        <div class="clearfix"></div>
+        
+        <div role="tabpanel" class="registration-form">
+          <!-- Nav tabs -->
+          <ul class="nav nav-tabs hidden-xs" role="tablist" id="ul_o">
+            <li role="presentation" class="toggle_li active" onclick="clickOnFirstTab();">
+                <a id="detail" href="#collapseOne" aria-controls="collapseOne" role="tab" class="toggle_anchor"><spring:message code="personalInfo"/></a></li>
+            <li role="presentation" class="toggle_li" id="stateTwo">
+                <a id="select_skipper" href="#collapseTwo" aria-controls="collapseTwo" role="tab" class="grey-text toggle_anchor"><spring:message code="skill"/></a></li>
+            <li role="presentation" class="toggle_li">
+                <a id="profile_desc" href="#collapseThree" aria-controls="collapseThree" role="tab" class="light-grey-text toggle_anchor"><spring:message code="bankDetail"/></a></li>
+          </ul>
+
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+         <form:form enctype="multipart/form-data" id="personalInfoID" name="personalInfo" modelAttribute="userProfileDto" autocomplete="off">
+          <div class="panel panel-default">
+            <div class="panel-heading visible-xs" role="tab" id="headingOne">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="text-uppercase">
+                  <spring:message code="personalInfo"/>
+                </a>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in tab-pane fade" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body" id="personal-info">
+                  <div class="row">
+                    <div class="col-sm-6">
+                        <div class="information-left-tab">
+                        <div id="removeDiv">
+                            <div class="row" id="rowId">
+                                <div class="col-sm-5">
+                             	<!-- <a href="#" id="crossImage" style="display:none;" onclick="crossFunction()">Cross</a> -->
+                                    <div class="Upload_pi" id="uploadImage">
+                                    <div class="reset-image" style="display:none">
+								    	<a href="#"><i class="glyphicon glyphicon-remove" aria-hidden="true"></i></a>
+								    </div>
+                                        <div class="fileUpload2">
+                                            <span class="custom-span"><img id="blah" src="/images/home/user.jpg" alt="user"></span>
+                                            <input id="uploadBtn" class="upload" type="file" name="fileUpload">
+                                        </div>
+                                        <%-- <p class="custom-para"><spring:message code="uploadImage"/></p> --%>
+                                         <%-- <button class="yellow-bgcolor btn btn-primary text-capitalize" type="button"><spring:message code="uploadImage"/></button> --%>
+                                         <div class="f">
+                                            <input id="uploadBtn" class="yellow-bgcolor btn btn-primary text-capitalize" type="file" name="fileUpload">
+                                        </div>
+                                    </div><!--Upload_pi-->
+                                    <p id="uploadSuccess"></p>
+                                     <p id="errorFileMsg"></p>                       
+                                </div>
+                                <div class="col-sm-1">
+                                  <div class="option-tab">
+                                      <spring:message code="or"/>
+                                  </div><!--option-tab-->                        
+                                </div>
+                                <div class="col-sm-6" id="uploadVideo">  
+                               <!--  <a href="#" id="crossVideo" style="display:none;" onclick="crossFunction()">Cross</a>  -->
+                                 <div class="reset-video" style="display:none">
+								    	<a href="#"><i class="glyphicon glyphicon-remove" aria-hidden="true"></i></a>
+								</div>
+                                   <div class="video-upload">
+                                    <label><spring:message code="uploaVideoMan"/></label>
+                                       <figure>
+                                           <div class="videoUpload-tab">
+                                                <span class="custom-span">
+                                               <!--  /images/home/video-upload.png -->
+                                                    <img id="blah2" src="/images/home/video-upload.png" alt="video upload">
+                                                </span>
+                                                <input id="uploadBtn2" class="upload" type="file" name="videoUpload">
+                                            </div>
+                                       </figure>                                    
+                                    <button class="yellow-bgcolor btn btn-primary text-capitalize" type="button"><spring:message code="uploaVideo"/></button>
+                                </div>
+                                 <p id="uploadSuccess-video"></p>
+                                </div>
+                                <div class="instruction">
+                                   <spring:message code="uploadClear"/> 
+                               </div>
+                            </div>
+                            </div>
+                            
+                        </div>  <!--information-left-tab -->                     
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="information-right-tab">
+                            <div class="row">
+                                    <div class="address-heading">
+                                        <spring:message code="homeAddress"/>
+                                    </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                   <form:input id="address" placeholder="Enter your address" class="form-control"
+								             path="address" onFocus="geolocate()" type="text"/>
+ 									
+ 									 </div>
+                                </div>
+                                <div class="col-sm-6">                                    
+                                    <div class="form-group">
+                                      
+                                        <form:input type="text" id="locality" class="form-control" placeholder="Town/City" path="city"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">                                    
+                                    <div class="form-group">
+                                        <%-- <select class="form-control" name="state" id="state">
+                                            <option value=""><spring:message code="state"/></option>
+                                            <option>Punjab</option>
+                                        </select> --%>
+                                        <form:input type="text" id="administrative_area_level_1" class="form-control" placeholder="State" path="state" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">                                    
+                                    <div class="form-group">
+                                        <form:input class="form-control"  id="zipcode" type="text" placeholder="Zip Code" path="zipCode" />
+                                    </div>
+                                </div>
+                                
+                                <div class="col-sm-6">                                    
+                                    <div class="form-group">
+                                        <form:input class="form-control"  id="country" type="text" placeholder="Country" path="country" />
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="address-heading">
+                                   <spring:message code="birthdate"/>  
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="col-sm-3">                                    
+                                    <div class="form-group">
+                                        <select class="form-control" name="date" id="date">
+                                         <option value=""><spring:message code="selectdate"/></option>
+                                        <c:forEach var="date" items="${dates}">
+                                            <option>${date.birthDate}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">                                    
+                                    <div class="form-group">
+                                        <select class="form-control" name="month" id="month">
+                                        <option value=""><spring:message code="selectmonth"/></option>
+                                            <c:forEach var="month" items="${months}">
+                                            <option>${month.birthMonth}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">                                    
+                                    <div class="form-group">
+                                        <form:input class="form-control" type="text" placeholder="Year" path="year" maxlength="4"/>
+                                    </div>
+                                </div>
+                            </div>
+                                
+                        </div>                        
+                    </div>
+                  </div>  
+                  <div class="vehical-main" id="vehicleMessage">
+                      <p><spring:message code="haveaccessvehicle"/></p>
+                      <ul class="vehical-tab" name="category">
+                          <li>
+                            <label><input class="vehicleStat" type="checkbox" id="bicycle" name="vehicle" value="bicycle"><spring:message code="bicycle"/></label>
+                              <h5><spring:message code="lorem"/></h5>
+                              <p><spring:message code="anim"/></p>
+                          </li>
+                          <li>
+                            <label><input class="vehicleStat" type="checkbox" id="car" name="vehicle" value="car"><spring:message code="car"></spring:message></label>
+                              <h5><spring:message code="lorem"/></h5>
+                              <p><spring:message code="anim"/></p>
+                          </li>
+                          <li>
+                            <label><input class="vehicleStat" type="checkbox" id="movingTruck" name="vehicle" value="movingTruck" ><spring:message code="movingTruck"/></label>
+                              <h5><spring:message code="lorem"/></h5>
+                              <p><spring:message code="anim"/></p>
+                          </li>
+                          <li>
+                            <label><input class="vehicleStat" type="checkbox" id="minivan" name="vehicle" value="minivan"><spring:message code="minivanSuv"/> </label>
+                              <h5><spring:message code="lorem"/></h5>
+                              <p><spring:message code="anim"/></p>
+                          </li>
+                          <li>
+                            <label><input class="vehicleStat" type="checkbox" id="pickup" name="vehicle" value="pickup"> <spring:message code="pickup"/></label>
+                              <h5><spring:message code="lorem"/></h5>
+                              <p><spring:message code="anim"/></p>
+                          </li>
+                          <li>
+                            <label><input class="vehicleStat" type="checkbox" id="fullSizeVan" name="vehicle" value="fullSizeVan"><spring:message code="fullsize"/></label>
+                              <h5><spring:message code="lorem"/></h5>
+                              <p><spring:message code="anim"/></p>
+                          </li>
+                      </ul>
+                    
+                    <!--  <input type="button" class="save-btn yellow-bgcolor btn btn-primary text-uppercase " value="SAVE &amp; CONTINUE"> -->
+                  </div>
+                  <button id="save_continue" class="yellow-bgcolor btn btn-primary text-uppercase" type="button"><spring:message code="buttonSave"/></button>
+              </div>
+            </div>
+          </div>
+         </form:form>
+        <%--  <div id="stageTwo">
+         
+         <%@ include file="../tarsier/tarsier-registration-stage-two.jsp"%>
+         </div> --%>
+           <div class="panel panel-default">
+            <div class="panel-heading visible-xs" role="tab" id="headingTwo">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" class="collapsed text-uppercase grey-text" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                 <spring:message code="skill"/>
+                </a>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse tab-pane fade" role="tabpanel" aria-labelledby="headingTwo">
+            <form:form  id="skillInfoID" name="skillInfoID" modelAttribute="IdSkillDto" autocomplete="off">
+              <div class="panel-body"  id="skills-main">
+                  <ul>
+                    <li>
+                        <div class="social-links">
+                            <figure>
+                                <img src="/images/home/id.png" alt="Digital iD">
+                            </figure>
+                            <div class="social-content">
+                                <h5><spring:message code="digitalId"/></h5>
+                                <p><spring:message code="digitalIdDes"/></p>
+                                <button class="yellow-bgcolor btn btn-primary text-uppercase" onclick="digitalFunction()"><spring:message code="add"/></button>
+                            </div>   <!--social-content-->                        
+                        </div>  <!--social-links-->
+                    </li>
+                    <li>
+                        <div class="social-links">
+                            <figure>
+                                <img src="/images/home/PoliceCheck.png" alt="Police Check">
+                            </figure>
+                            <div class="social-content">
+                                <h5><spring:message code="policeCheck"/></h5>
+                                <p><spring:message code="policeCheckDes"/></p>
+                                <button class="yellow-bgcolor btn btn-primary text-uppercase" onclick="policeCheckFunction()"><spring:message code="add"/></button>
+                            </div>   <!--social-content-->                        
+                        </div>  <!--social-links-->
+                    </li>
+                    <li>
+                        <div class="social-links">
+                            <figure>
+                                <img src="/images/home/Twitter.png" alt="Twitter">
+                            </figure>
+                            <div class="social-content">
+                                <h5><spring:message code="twitter"/></h5>
+                                <p><spring:message code="twitterDes"/></p>
+                                <button class="yellow-bgcolor btn btn-primary text-uppercase"><spring:message code="add"/></button>
+                            </div>   <!--social-content-->                        
+                        </div>  <!--social-links-->
+                    </li>
+                    <li>
+                        <div class="social-links">
+                            <figure>
+                                <img src="/images/home/LinkedIn-1.png" alt="LinkedIn">
+                            </figure>
+                            <div class="social-content">
+                                <h5><spring:message code="linkedIn"/></h5>
+                                <p><spring:message code="linkedInDes"/></p>
+                                <button class="yellow-bgcolor btn btn-primary text-uppercase"><spring:message code="add"/></button>
+                            </div>   <!--social-content-->                        
+                        </div>  <!--social-links-->
+                    </li>
+                    <li>
+                        <div class="social-links">
+                            <figure>
+                                <img src="/images/home/Facebook-1.png" alt="Facebook">
+                            </figure>
+                            <div class="social-content">
+                                <h5><spring:message code="facebook"/></h5>
+                                <p><spring:message code="facebookDes"/></p>
+                                <button class="yellow-bgcolor btn btn-primary text-uppercase"><spring:message code="add"/></button>
+                            </div>   <!--social-content-->                        
+                        </div>  <!--social-links-->
+                    </li>
+                  </ul>
+                <div class="skills-accordian" id="skillValidation">
+                  <div class="accordion">
+                   <p id="errMsg"></p>
+                   <c:forEach var="category" items="${categoryList}">
+                    <div class="accordion-item">
+                        <a href="#" class="heading">
+                            <div class="icon"></div>
+                            <div class="title">
+                                <h6>
+									${category.categoryName}
+                                </h6>
+                                <p><spring:message code="uploadClear"/></p>
+                            </div>
+                        </a>
+                        <div class="content">
+                            <p>
+                                <spring:message code="levelOfExperience"/>
+                                
+                            </p>                                    
+                                <div class="form-group">
+                                    <select class="form-control" name="level" id="level">
+                                     <option value="">Please select level of experience</option>
+                                     <c:forEach var="level" items="${levels}"> 
+                                        <option>${level.levelExperience}</option>
+                                        </c:forEach> 
+                                    </select>
+                                </div>                             
+                                
+                                <div class="form-group">
+			                          <form:textarea class="form-control" placeholder="Your quick pich" path="quickPitch" maxlength="200"></form:textarea>
+			                    </div>
+			                    <div class="row">
+                                <div class="form-group col-md-3">
+	                              <label class="margin-b10">Hrs</label>
+	                                 <div class="col-md-12">
+	                              <span class="pull-left">$</span>
+	                              <span class="abc"><form:input type="text" class="form-control height40" path="amount"/></span><span>.00/Hr</span>                              
+                                </div> </div> 
+                                 
+                                  <div class="form-group col-md-5">
+	                              <label class="margin-b10">Most Taskers With Experience Hired At</label>
+	                              <p>$22/Hr</p>                             
+                                </div> 
+                                
+                                  <div class="form-group col-md-4">
+	                              <label class="margin-b10">Take Home Rate</label>
+	                                <p>$22/Hr</p>                            
+                                </div>   
+                                </div>	                    
+                            
+
+                                
+                        </div>
+                        
+                    </div>
+                </c:forEach>
+
+
+                  </div><!--    accordion-->
+                </div><!--skills-accordion1-->
+                  	<button  class="yellow-bgcolor btn btn-primary text-uppercase" type="button" id="continueTab"><spring:message code="buttonSave"/></button> 
+                  
+              </div>
+              </form:form>
+            </div>
+          </div>
+         
+         
+          <form:form  id="bankDetailInfoID" name="bankDetailInfo" modelAttribute="bankDetailDto" autocomplete="off"  onsubmit="return submitBankDetailFunction();">
+          <div class="panel panel-default">
+            <div class="panel-heading visible-xs" role="tab" id="headingThree">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" class="collapsed text-uppercase light-grey-text" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  <spring:message code="bankDetail"/>
+                </a>
+              </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse tab-pane fade" role="tabpanel" aria-labelledby="headingThree">
+              <div class="panel-body" id="bank-account">
+                <h5><spring:message code="requestPayment"/><br class="hidden-xs">
+                    <spring:message code="whoRelease"/><br class="hidden-xs"><spring:message code="usePaypal"/>
+                </h5>
+                  <h6><spring:message code="bankDetail"/></h6>
+                <div class="row">
+                    <%-- <form class="bank-account-form"> --%>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label><spring:message code="accountHolder"/> </label>
+                                <form:input type="text" class="form-control" path="accountHolderName" />
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label><spring:message code="bsb"/></label>
+                                <form:input type="text" class="form-control" path="bsb" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label><spring:message code="accountNumber"/></label>
+                                <form:input type="text" class="form-control" path="accountNumber" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label><spring:message code="paypalDetails"/></label>
+                                <form:input type="text" class="form-control" path="paypalDetail" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <button class="yellow-bgcolor btn btn-primary text-uppercase pull-left"><spring:message code="addPaypalEmail"/></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <p><spring:message code="paypalTransaction"/></p>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                            <!-- <input type="button" class="save-btn yellow-bgcolor btn btn-primary text-uppercase " value="SAVE &amp; CONTINUE"> -->
+                                 <button class="save-btn yellow-bgcolor btn btn-primary text-uppercase "><spring:message code="buttonSave"/> </button>
+                            </div>
+                        </div>
+                 <%--    </form> --%>
+                  
+                </div>  
+                  
+              </div>
+            </div>
+          </div>
+          </form:form>
+          
+        </div>
+
+        </div>
+        </div><!-- registration-steps-->  
+        
+          <!-- Digital Modal -->
+            <div class="modal fade" id="myModal-digital" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title text-center" id="myModalLabel">
+                       <h2>Australia Post Digital iD™ Badge</h2>
+
+							<h4>Get the Digital iD Badge on your profile</h4>
+							<p>Whether you’re a Job Poster, an Tarsier Worker, or a little bit of both, it really helps to be able to trust the people you’re dealing with! That’s exactly why we have reviews, Completion Rates and Badges on profiles. Our ever-expanding range of Badges are particularly useful - helping you verify your identity, skills and which of our partner brands you’ve worked with.</p>
+							
+							<p>Our newest Badge, the Digital iD Badge from Australia Post, verifies your identity. Give members a greater level of comfort and trust in choosing you for tasks and verify your identity with Australia Post’s Digital iD.</p>
+							
+							<p>To get the Badge on your profile, simply complete the application process and if successful the Digital iD Badge will be added. That way, a Job Poster is reassured when they pick you for their task.</p>
+							
+							<p>Keep your valid passport or driver’s licence close by during the application - you’ll need it!. Make sure it shows the same first name, last name and DOB as your Tarsier profile before you apply, otherwise you won’t be able to get the badge.
+							</p>
+							<div>Things you'll need:</div>
+							<ul><li>
+							Valid passport or driver's licence.</li>
+							<li>Matching Airtasker profile name and DOB. Update profile.</li>
+							</ul>
+							Learn more about the Digital iD Badge
+                    </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="terms-content">
+                                             
+                    </div> <!--terms-content-->
+                      
+                  </div>
+                  <div class="modal-footer">
+                    
+                <button class="yellow-bgcolor btn btn-primary text-uppercase proceed-btn" type="button" data-toggle="modal" data-target="#myModal">Apply now</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        <!--Digital Modal ends -->
+        
+        
+          <!-- Police Check Modal -->
+            <div class="modal fade" id="myModal-police" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title text-center" id="myModalLabel">
+                     <h2> Police Check Badge</h2>
+
+							<h3>Register your interest for a Police Check Badge</h3>
+							<p>On Tarsier trust is extremely important to a Job Poster when they’re considering people to complete their task. The Police Check Badge not only adds another verification on your profile, but also helps you to stand out when making offers on tasks.</p>
+							
+							<p>We are currently running a pilot for the Police Check Badge. If you would like to be included in this pilot, please register your interest below.</p>
+							
+							<p>We’ll send you an email with an invite to apply for a Police Check Badge and to explain the requirements for participating in the pilot.</p>
+							
+							You can learn more about the Police Check Badge here.
+	 </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="terms-content">
+                                             
+                    </div> <!--terms-content-->
+                      
+                  </div>
+                  <div class="modal-footer">
+                    
+                <button class="yellow-bgcolor btn btn-primary text-uppercase proceed-btn" type="button" data-toggle="modal" data-target="#myModal">Apply now</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        <!--Police Check Modal ends -->
+        
+        
+        
+        <!-- Save and continue Modal -->
+            <div class="modal fade" id="myModal-save" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title text-center" id="myModalLabel">
+					<p>Are you sur you want to continue.</p>
+	               </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="terms-content">
+                                             
+                    </div> <!--terms-content-->
+                      
+                  </div>
+                  <div class="modal-footer">
+                    
+                <button class="yellow-bgcolor btn btn-primary text-uppercase proceed-btn" onclick="submitSkillFunction();" data-dismiss="modal" data-target="#myModal">Continue</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        <!--Save and continue Modal ends -->
+        
+         
+      </div>
+  </section>
+</div><!-- Main-wrapper -->  
+
+<!-- FOOTER STARTS -->
+  <jsp:include page="/home/templates/fragments/footer.jsp"/>
+<!-- FOOTER ENDS -->
+
+
+<!--  SCRIPTS -->
+<script src="/js/home/jquery.min.js" type="text/jscript"></script>
+
+<!-- BOOTSTRAP SCRIPT -->
+<script src="/js/home/bootstrap.min.js" type="text/jscript"> </script>
+<script src="/js/validate/jquery.validate.min.js" type="text/jscript"> </script>
+<script type="text/javascript" src="/js/admin/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/js/admin/additional-methods.min.js"></script>
+
+
+<script type="text/javascript">
+function clickOnFirstTab() { 
+	 if($('#collapseTwo').is(':visible') || $('#collapseThree').is(':visible')) {
+		 activaTab('collapseOne');
+		 adjustProgressBar2();
+		 $('.nav-tabs a[href="#collapseTwo"]').removeClass('active').attr('style','');
+		 $('.nav-tabs a[href="#collapseThree"]').removeClass('active').attr('style','');
+	  }
+}
+
+function adjustProgressBar1(staticProgress) { 
+    var progressBar=100;
+    var calProgress="";
+    var barValue;
+	calProgress=document.getElementById("ul_o").getElementsByTagName("li").length;
+	document.getElementById("progressbarValue").style.width = (progressBar/calProgress) + staticProgress + "%";
+	barValue = (progressBar/calProgress) + staticProgress;
+	$("#registrationCompleteion").text(parseInt(barValue)+" %");
+  }
+  
+function adjustProgressBar2() { 
+    var progressBar=100;
+    var calProgress="";
+    var barValue;
+	calProgress=document.getElementById("ul_o").getElementsByTagName("li").length;
+	document.getElementById("progressbarValue").style.width = progressBar/calProgress + "%";
+	barValue = progressBar/calProgress;
+	$("#registrationCompleteion").text(parseInt(barValue)+" %");
+}
+
+$(document).ready(function(){
+	
+	 //click on sencond tab if third tab is showing..
+	 $('#stateTwo').click(function (e) {
+		 alert('call out of if..');
+		 if($('#collapseThree').is(':visible')) {
+			 var staticProgress=33.3;
+			    activaTab('collapseTwo');
+			    adjustProgressBar1(staticProgress);
+				$('.nav-tabs a[href="#collapseTwo"]').addClass('active').attr('style','border-bottom: 4px solid #fff112');
+				$('.nav-tabs a[href="#collapseThree"]').removeClass('active').attr('style','');
+		     }
+	});
+	
+	//tabs script
+	 $('.nav-tabs a').click(function (e) {
+	  $('.nav li.active').next('li').removeClass('disabled');
+	  $('.nav li.active').next('li').find('a').attr("role","tab");
+
+	});
+	
+	/*disable non active tabs*/
+    $('.nav li').not('.active').addClass('disabled');
+    $('.nav li').not('.active').find('a').removeAttr("role");
+    
+    $.validator.addMethod("lettersonly", function(value, element) {
+        return this.optional(element) || /^[a-z + ,.]+$/i.test(value);
+}, "<spring:message code="lettersonlyplease"/>"); 
+    
+	$.validator.addMethod('filesize', function (value, element, arg) {
+        var minsize=1000; // min 1kb
+        if((value>minsize)&&(value<=arg)){
+            return true;
+        }else{
+            return false;
+        }
+    });
+ 	 
+	$('#save_continue').on("click", function() {
+		 if($('#uploadBtn').get(0).files.length == 0 ){
+	    	   $('#errorFileMsg').text("please choose image");
+	    	}
+	    else{
+	    	$('#errorFileMsg').text("");
+	    }
+	    checkIsFormValid();
+	});
+	
+	$("#personalInfoID").validate({
+		ignore: [],
+		errorElement: 'label', //default input error message container
+        errorClass: 'error', // default input error message class
+        focusInvalid: false, // do not focus the last invalid input
+ 	rules: {
+     	
+ 		address: {
+             required: true
+         },
+        city: {
+             required: true
+         },
+        state: {
+             required: true
+         },
+        zipCode: {
+             required: true,
+             maxlength:7
+         },
+         country:{
+        	 required: true
+         },
+         date: {
+             required: true
+         },
+         month: {
+             required: true
+         },
+        year: {
+             required: true,
+             number: true,
+         },
+         vehicle: {
+             required: true
+         },
+         fileUpload:{
+             extension: "jpg|jpeg|png|gif"
+         },
+         videoUpload:{
+             extension: "wmv"
+         }
+     },
+     messages: {
+    	 address: "This field is required",
+    	 city:"This field is required",
+    	 country:"This field is required",
+	    	state:"This field is required",
+	    	zipCode:"This field is required",
+	    	date:"This field is required",
+	    	month:"This field is required",
+	    	year:"This field is required",
+	    	vehicle:"Atleast one check box is required",
+	    	fileUpload:{accept: 'Only images are allowed!', extension: "Following extension only jpg,jpeg,png,gif"},
+	    	videoUpload:{extension: "Upload only video"}
+	    },
+	    errorPlacement: function(error, element) {
+	    	if (element.attr("name") == "fileUpload") {
+				error.insertAfter("#uploadImage");
+				$('#uploadSuccess').text("");
+			}else if(element.attr("name") == "vehicle"){
+					error.insertAfter("#vehicleMessage")
+			}
+			else if (element.attr("name") == "videoUpload") {
+	    		error.insertAfter(".video-upload");
+				$('#uploadSuccess-video').text("");
+			}
+	    	else{
+					error.insertAfter(element);
+				}
+		}
+ });
+	
+
+	$("#skillInfoID").validate({
+		ignore: [],
+		errorElement: 'label', //default input error message container
+        errorClass: 'error', // default input error message class
+        focusInvalid: false, // do not focus the last invalid inputs
+ 	rules: {
+     	
+ 		level: {
+             required: true
+         },
+         
+     	quickPitch: {
+             required: true
+             
+         },
+     	amount: {
+             required: true,
+             number: true,
+             maxlength: 3
+         }/* ,
+         erroMsg: {
+             required: true
+         } */
+      },
+     messages: {
+    	 level: "This field is required",
+    	 quickPitch:"This field is required",
+	     amount:"This field is required"
+	     //erroMsg:"Please select at least one category"
+	    	
+	    },
+	    errorPlacement: function(error, element) {
+	    	if (element.attr("name") == "amount") {
+				error.insertBefore("#skillValidation");
+				}
+	    	else{
+	    		error.insertAfter(element);
+	    	}
+				
+			
+		}
+ });
+	
+	$("#bankDetailInfoID").validate({
+		ignore: [],
+		errorElement: 'label', //default input error message container
+        errorClass: 'error', // default input error message class
+        focusInvalid: false, // do not focus the last invalid input
+ 	rules: {
+     	
+ 		accountHolderName: {
+             required: true,
+             lettersonly:true
+             
+         },
+         
+         bsb: {
+             required: true,
+             maxlength: 16
+         },
+         
+         accountNumber: {
+             required: true,
+             number: true,
+             maxlength: 16
+
+         },
+         paypalDetail:{
+        	 required: true
+         }
+      },
+     messages: {
+    	 accountHolderName: "This field is required",
+    	 bsb:"This field is required",
+    	 accountNumber:"This field is required",
+    	 paypalDetail:"This field is required"
+	    	
+	    },
+	    
+	    errorPlacement: function(error, element) {
+	    	
+	     error.insertAfter(element);		
+			
+		}
+ });
+
+});
+
+
+//Check form validation and submission here..
+function checkIsFormValid() {
+       if ($('#personalInfoID').valid()) {
+    	   var staticProgress=33.3;
+              submitFunction();
+              activaTab('collapseTwo');
+              progressBar(staticProgress);
+              $('.nav-tabs a[href="#collapseTwo"]').removeClass('active').attr('style','border-bottom: 4px solid #fff112');
+      }
+       
+}
+
+$('#continueTab').on("click", function() {
+	continueFuntion();
+});
+//Check form validation and Id skills here..
+function continueFuntion() {
+	$("#errMsg").text("Please select at least one category");
+    if ($('#skillInfoID').valid()) {
+    	$("#errMsg").text("");
+    	$("#myModal-save").modal();
+   }
+    
+} 
+
+function changeHashOnLoad() { 
+    window.location.href += "#"; 
+    setTimeout("changeHashAgain()", "50"); 
+} 
+
+function changeHashAgain() { 
+ window.location.href += "1"; 
+} 
+
+var storedHash = window.location.hash; 
+window.setInterval(function () { 
+   if (window.location.hash != storedHash) { 
+        window.location.hash = storedHash; 
+   } 
+}, 50); 
+
+function activaTab(tabId){
+    $(".panel-collapse").removeClass('in active').attr('style','');  
+    $("#accordion .panel-title a").addClass("collapsed");
+    $("#accordion .panel-title a[href='"+$(this).attr('href')+"']").removeClass("collapsed"); 
+    $('.nav-tabs a[href="#' + tabId + '"]').tab('show');
+    //$('.nav-tabs a[href="#' + tabId + '"]').addClass('active').attr('style','border-bottom: 4px solid #fff112');
+}; 
+
+$("#accordion .panel-title a").click(function (e) {
+    if($(this).parents('.panel').children('.panel-collapse').hasClass('in')){
+        e.stopPropagation();
+    }    
+   $(".nav-tabs li").removeClass('active');
+   $(".nav-tabs li a[href='"+$(this).attr('href')+"']").parent().addClass("active");
+});
+
+
+
+//<!-- accordian code -->
+
+$('.accordion-item .heading').on('click', function(e) {
+e.preventDefault();
+
+// Add the correct active class
+if($(this).closest('.accordion-item').hasClass('active')) {
+    // Remove active classes
+    $('.accordion-item').removeClass('active');
+} else {
+    // Remove active classes
+    $('.accordion-item').removeClass('active');
+
+    // Add the active class
+    $(this).closest('.accordion-item').addClass('active');
+}
+
+// Show the content
+var $content = $(this).next();
+$content.slideToggle(100);
+$('.accordion-item .content').not($content).slideUp('fast');
+});
+
+ 
+
+function submitFunction(){
+	 //if($("#personalInfoID").valid()){   
+	 var vehicleTasks = [];
+	 var count =1;
+	 var jsonData;
+     $.each($("input[name='vehicle']:checked"), function(){            
+         vehicleTasks.push('"'+count+'"'+":"+'"'+$(this).val()+'"');
+         count++;
+     });
+ 
+     jsonData = "{"+vehicleTasks+"}";
+	var file_data = $('input[type="file"]')[0].files; 
+	var state=$('#administrative_area_level_1').val();
+	var date=$('#date option:selected').val();
+	var month=$('#month option:selected').val();
+	var year=$('#year').val();
+	var address=$('#address').val();
+	var city=$('#locality').val();
+	var zipCode=$('#zipcode').val();
+	var country=$('#country').val();
+	/* var progressBar=100;
+	var calProgress="";
+	var barValue; */
+	var formData=new FormData();
+	for(var i = 0;i<file_data.length;i++){
+	      formData.append("file", file_data[i]);
+	    
+	}
+	formData.append("country", country);
+	formData.append("state", state);
+	formData.append("date", date);
+	formData.append("month", month);
+	formData.append("year", year);
+	formData.append("address", address);
+	formData.append("city", city);
+	formData.append("zipCode", zipCode);
+	formData.append("jsonData", jsonData);
+	if(file_data.length<=0){
+		return false;
+	}else{
+		
+		var url = '<%=request.getContextPath()%>/tarsier/web/uploadPersonalInfo';
+		$.ajax({
+		    url: url,
+		    data: formData,
+		    contentType: false,
+		    processData: false,
+		    type: 'POST',
+		    success: function(response){
+		    	/* calProgress=document.getElementById("ul_o").getElementsByTagName("li").length;
+		    	document.getElementById("progressbarValue").style.width = progressBar/calProgress + "%";
+		    	barValue = progressBar/calProgress;
+		    	$("#registrationCompleteion").text(parseInt(barValue)+" %"); */
+		    	
+		    	/* $("#stateOne").removeClass('active');
+		    	$("#stateOne").removeClass('active');
+		    	$("#collapseTwo").hide();
+		    	$("#headingTwo").show();
+		    	$("#collapseTwo").show();
+		    	$("#stateTwo").addClass('active');
+		    	$("#stageTwo").show();
+ */
+		    	// load first tab content
+		    },
+		    	 error : function() {
+		    	 }
+		});
+		
+		return false;
+	}
+	//}
+}
+
+function progressBar(staticProgress)
+{
+	
+	var progressBar=100;
+    var calProgress="";
+    var barValue;
+	calProgress=document.getElementById("ul_o").getElementsByTagName("li").length;
+	document.getElementById("progressbarValue").style.width = (progressBar/calProgress) + staticProgress + "%";
+	barValue = (progressBar/calProgress) + staticProgress;
+	$("#registrationCompleteion").text(parseInt(barValue)+" %");
+
+}
+
+function readURL(input) {
+	  if (input.files && input.files[0]) {
+	    var reader = new FileReader();
+
+	    reader.onload = function(e) {
+	      $('#blah').attr('src', e.target.result);
+	    }
+
+	    reader.readAsDataURL(input.files[0]);
+	    $('#uploadVideo *').prop('disabled',true);
+	   /*  $("#crossImage").show(); */
+	  }
+	}
+
+	$("#uploadBtn").change(function() {
+	  readURL(this);
+	  $('.reset-image').show();
+	  $('#errorFileMsg').text("");
+	  $('#uploadSuccess').text("Image is loaded successfully");
+	  $('#uploadBtn2').prop('disabled',true);
+	
+	});
+	
+	
+	function readURL2(input) {
+		  if (input.files && input.files[0]) {
+		    var reader = new FileReader();
+
+		    reader.onload = function(e) {
+		      $('#blah2').attr('src', e.target.result);
+		    }
+
+		    reader.readAsDataURL(input.files[0]);
+		    $('#uploadImage *').prop('disabled',true);
+		 /*    $("#crossVideo").show(); */
+		  }
+		}
+
+		$("#uploadBtn2").change(function() {
+		  readURL2(this);
+		  $('.reset-video').show();
+		  $('#uploadSuccess-video').text("Video is loaded successfully");
+		  $('#uploadBtn').prop('disabled',true);
+		
+		});
+		
+		$('.reset-image a').on("click", function() {
+				$('#blah').attr('src', '/images/home/user.jpg');
+				$('#uploadBtn').val('');
+				$('#uploadVideo *').prop('disabled',false);
+				$('.reset-image').hide();
+				$('#uploadSuccess').text("");
+				$('#uploadBtn-error').hide();
+		});
+	
+		$('.reset-video a').on("click", function() {
+				$('#blah2').attr('src', '/images/home/video-upload.png');
+				$('#uploadBtn2').val('');
+				$('#uploadImage *').prop('disabled',false);
+				$('.reset-video').hide();
+				$('#uploadSuccess-video').text("");
+				$('#uploadBtn2-error').hide();
+			
+		});
+		/* $('.reset-video a').on("click", function() {
+			$('#blah2').attr('src', '');
+			$('#uploadBtn2').val('');
+			$('#uploadImage *').prop('disabled',false);
+			$('.reset-video').hide();
+		}); */
+		/* function crossFunction(){
+		 $("#removeDiv").replaceWith(' <div class="row" id="rowId">'+
+                 '<div class="col-sm-5">'+
+              	'<a href="#" id="cross" style="display:none;" onclick="crossFunction()">Cross</a>'+
+                     '<div class="Upload_pi" id="uploadImage">'+
+                         '<div class="fileUpload2">'+
+                             '<span class="custom-span"><img id="blah" src="/images/home/man-user.png" alt="user"></span>'+
+                             '<input id="uploadBtn" class="upload" type="file">'+
+                         '</div>'+
+                         '<p class="custom-para">Upload Images</p>'+
+                     '</div>'+                       
+                 '</div>'+
+                 '<div class="col-sm-1">'+
+                   '<div class="option-tab">'+
+                        ' or'+
+                   '</div>'+                        
+                ' </div>'+
+                 '<div class="col-sm-6" id="uploadVideo">'+  
+                   ' <div class="video-upload">'+
+                    ' <label> Upload Video &#40; not mandatory &#41;</label>'+
+                       ' <figure>'+
+                       '     <div class="videoUpload-tab">'+
+                                 '<span class="custom-span">'+
+                                    ' <img id="blah2" src="/images/home/video-upload.png" alt="video upload">'+
+                                 '</span>'+
+                               '  <input id="uploadBtn2" class="upload" type="file">'+
+                             '</div>'+
+                       ' </figure> '+                                   
+                     '<button class="yellow-bgcolor btn btn-primary text-capitalize">Upload Video</button>'+
+                ' </div> '+
+                ' </div>'+
+                 '<div class="instruction">'+
+                   '  Upload a clear, professional photo of yourself or share a video to increase your likelihood of being hired'+
+                 '</div>'+
+             '</div>');
+	 }
+	
+	 */ 
+ 	 function submitBankDetailFunction(){
+		 if($("#bankDetailInfoID").valid()){ 
+				var accountHolderName=$('#accountHolderName').val();
+				var address=$('#address').val();
+				var bsb=$('#bsb').val();
+				var accountNumber=$('#accountNumber').val();
+				var paypalDetail=$('#paypalDetail').val();
+				var formData=new FormData();
+				formData.append("accountHolderName", accountHolderName);
+				formData.append("address", address);
+				formData.append("accountNumber", accountNumber);
+				formData.append("paypalDetail", paypalDetail);
+					var url = '<%=request.getContextPath()%>/tarsier/web/uploadBankInfo';
+					$.ajax({
+					    url: url,
+					    data: formData,
+					    contentType: false,
+					    processData: false,
+					    type: 'POST',
+					    success: function(response){
+					    	progressBar(100);
+					    	window.location.href='<%=request.getContextPath()%>/tarsier/web/getTarsierProfile';
+					    },
+					    	 error : function() {
+					    	 }
+					});
+					
+					return false;
+		 }
+	} 
+	 
+ 	 function digitalFunction(){
+ 		$("#myModal-digital").modal();
+ 	 }
+	 
+ 	 function policeCheckFunction(){
+ 		$("#myModal-police").modal();
+ 	 }
+ 	 
+ 	 function submitSkillFunction(){
+ 			var staticProgress = 67.3;
+ 			var level=$('#level option:selected').val();
+ 	 		var quickPitch=$('#quickPitch').val();
+ 	 		var amount=$('#amount').val();
+ 	 		var formData=new FormData();
+ 	 		formData.append("level", level);
+ 	 		formData.append("quickPitch", quickPitch);
+ 	 		formData.append("amount", amount);
+ 	 			var url = '<%=request.getContextPath()%>/tarsier/web/uploadSkillInfo';
+ 	 			$.ajax({
+ 	 			    url: url,
+ 	 			    data: formData,
+ 	 			    contentType: false,
+ 	 			    processData: false,
+ 	 			    type: 'POST',
+ 	 			    success: function(response){
+ 	 			    	
+ 	 			    	progressBar(staticProgress);
+ 	 			    	activaTab('collapseThree');
+ 	 			    	$('.nav-tabs a[href="#collapseTwo"]').removeClass('active').attr('style','');
+ 	 			    	$('.nav-tabs a[href="#collapseThree"]').addClass('active').attr('style','border-bottom: 4px solid #fff112');
+ 	 			    },
+ 	 			    	 error : function() {
+ 	 			    	 }
+ 	 			});
+ 	 			
+ 	 			return false;		
+ 	}
+ 	 // This example displays an address form, using the autocomplete feature
+    // of the Google Places API to help users fill in the information.
+
+    // This example requires the Places library. Include the libraries=places
+    // parameter when you first load the API. For example:
+    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+    var placeSearch, autocomplete;
+    var componentForm = {
+    /* 31 October, 2017
+      plz uncommnet the code if you need more parameters
+      street_number: 'short_name',
+      route: 'long_name', */
+      locality: 'long_name',
+      administrative_area_level_1: 'long_name',
+      country: 'long_name',
+      zipcode: 'short_name'
+    };
+
+    function initAutocomplete() {
+      // Create the autocomplete object, restricting the search to geographical
+      // location types.
+      autocomplete = new google.maps.places.Autocomplete(
+          /** @type {!HTMLInputElement} */(document.getElementById('address')),
+          {types: ['geocode']});
+
+      // When the user selects an address from the dropdown, populate the address
+      // fields in the form.
+      autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+      // Get the place details from the autocomplete object.
+      var place = autocomplete.getPlace();
+
+      for (var component in componentForm) {
+        document.getElementById(component).value = '';
+        document.getElementById(component).disabled = false;
+      }
+
+      // Get each component of the address from the place details
+      // and fill the corresponding field on the form.
+      for (var i = 0; i < place.address_components.length; i++) {
+        var addressType = place.address_components[i].types[0];
+        if (componentForm[addressType]) {
+          var val = place.address_components[i][componentForm[addressType]];
+          document.getElementById(addressType).value = val;
+        }
+      }
+    }
+
+    // Bias the autocomplete object to the user's geographical location,
+    // as supplied by the browser's 'navigator.geolocation' object.
+    function geolocate() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var geolocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          var circle = new google.maps.Circle({
+            center: geolocation,
+            radius: position.coords.accuracy
+          });
+          autocomplete.setBounds(circle.getBounds());
+        });
+      }
+    }
+    
+	</script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ-RgBrZLnwc23ZGmUpl12IMIDsMACRu0&libraries=places&callback=initAutocomplete"
+        async defer></script>
+</body>
+<!-- END BODY -->
+</html>
